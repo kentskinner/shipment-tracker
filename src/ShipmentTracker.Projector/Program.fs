@@ -1,4 +1,4 @@
-module ShipmentTracker.Projector.Program
+﻿module ShipmentTracker.Projector.Program
 
 open System
 open System.Collections.Generic
@@ -9,7 +9,7 @@ open ShipmentTracker.Domain
 let private topic = "shipment-events"
 
 // In-memory projection store: shipmentId -> current state.
-// Milestone 4 replaces this with DynamoDB and conditional writes; until
+// A durable store (DynamoDB, conditional writes) is on the roadmap; until
 // then a restart loses the projection, which is fine - it rebuilds by
 // replaying the topic (that is the point of keeping the log).
 let private store = Dictionary<ShipmentId, ShipmentState>()
@@ -75,7 +75,7 @@ let main argv =
             // Manual commits: the offset moves only after we have processed
             // and stored the result. Crash before the commit -> redelivery
             // -> at-least-once. Duplicates are the projector's problem to
-            // absorb (idempotency, milestone 4), not Kafka's to prevent.
+            // absorb (see the lastEventId check in handle), not Kafka's.
             EnableAutoCommit = false,
             // Only applies when the group has no committed offset yet:
             // start from the beginning of the log. (A group's committed
