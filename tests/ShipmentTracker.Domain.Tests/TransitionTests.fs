@@ -3,27 +3,7 @@ module TransitionTests
 open System
 open Xunit
 open ShipmentTracker.Domain
-
-let buildState shipmentId =
-    { Status = Created
-      ShipmentId = shipmentId
-      Origin = "Rotterdam"
-      Destination = "Singapore"
-      CarrierId = CarrierId "MAEU"
-      LastEventId = EventId(Guid.NewGuid())
-      PickedUpBy = None
-      ContainerId = None
-      ClearedBy = None
-      SignatureName = None
-      DeliveredTo = None }
-
-let buildEnvelope shipmentId payload =
-    { ShipmentId = shipmentId
-      EventId = EventId(Guid.NewGuid())
-      CorrelationId = CorrelationId(Guid.NewGuid())
-      OccurredAt = DateTimeOffset.UtcNow
-      SchemaVersion = 1
-      Payload = payload }
+open Builders
 
 let applyAll (envelopes: Envelope list) : Result<ShipmentState option, Shipment.TransitionError> =
     let folder acc envelope =
