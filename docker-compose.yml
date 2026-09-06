@@ -1,0 +1,38 @@
+services:
+  kafka:
+    image: apache/kafka:4.0.0 # KRaft-only Kafka; ZooKeeper is gone entirely as of 4.0
+    container_name: shipment-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      # Single node acting as both broker (serves clients) and controller
+      # (cluster metadata quorum — the role ZooKeeper used to play).
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      CLUSTER_ID: 5L6g3nShT-eMCtK--X86sw
+
+      # Two listeners: 9092 for clients, 9093 for controller-to-controller traffic.
+      # ADVERTISED_LISTENERS is what the broker tells clients to connect back to —
+      # it must be reachable FROM THE CLIENT'S network, hence localhost for host apps.
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+
+      # Internal topics default to replication factor 3; a single broker can't do that.
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      # Topics are contracts: create them explicitly, never by side effect of a
+      # producer typo. (Auto-create defaults to true and is a production footgun.)
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka-data:/var/lib/kafka/data # survive `docker compose down`
+
+volumes:
+  kafka-data:
