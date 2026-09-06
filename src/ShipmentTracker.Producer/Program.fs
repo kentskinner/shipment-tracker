@@ -37,6 +37,7 @@ let private publish (producer: IProducer<string, string>) (envelope: Envelope) =
         // The partition key is the raw shipmentId string: same key -> same
         // partition -> per-shipment ordering. Wrappers stay out of the wire.
         let (ShipmentId key) = envelope.ShipmentId
+
         let message =
             Message<string, string>(Key = key, Value = Serialization.serializeEnvelope envelope)
 

@@ -10,15 +10,14 @@ let topic = "shipment-events-dlq"
 /// failure (error, timestamp), locate the original (topic/partition/offset),
 /// and replay it (raw value, original key).
 let private encode (source: ConsumeResult<string, string>) (error: string) =
-    Encode.object [
-        "failedAt", Encode.datetimeOffset DateTimeOffset.UtcNow
-        "error", Encode.string error
-        "sourceTopic", Encode.string source.Topic
-        "sourcePartition", Encode.int source.Partition.Value
-        "sourceOffset", Encode.int64 source.Offset.Value
-        "key", Encode.option Encode.string (Option.ofObj source.Message.Key)
-        "originalValue", Encode.string source.Message.Value
-    ]
+    Encode.object
+        [ "failedAt", Encode.datetimeOffset DateTimeOffset.UtcNow
+          "error", Encode.string error
+          "sourceTopic", Encode.string source.Topic
+          "sourcePartition", Encode.int source.Partition.Value
+          "sourceOffset", Encode.int64 source.Offset.Value
+          "key", Encode.option Encode.string (Option.ofObj source.Message.Key)
+          "originalValue", Encode.string source.Message.Value ]
     |> Encode.toString 0
 
 let publish (producer: IProducer<string, string>) (source: ConsumeResult<string, string>) (error: string) =

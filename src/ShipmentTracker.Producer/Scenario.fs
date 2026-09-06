@@ -18,6 +18,7 @@ let private pick (random: Random) (xs: 'a list) = xs[random.Next xs.Length]
 let private lifecyclePayloads (random: Random) : ShipmentEvent list =
     let origin = pick random locations
     let destination = locations |> List.filter ((<>) origin) |> pick random
+
     [ ShipmentCreated
           { Origin = origin
             Destination = destination
@@ -48,10 +49,11 @@ let rec private interleave (random: Random) (queues: ('id * 'a) list list) acc =
 let generate (random: Random) (count: int) : Envelope list =
     let queues =
         [ for i in 1..count ->
-            let sid = ShipmentId $"SIM-%03d{i}"
-            let correlationId = CorrelationId(Guid.NewGuid())
-            lifecyclePayloads random
-            |> List.map (fun payload -> (sid, correlationId), payload) ]
+              let sid = ShipmentId $"SIM-%03d{i}"
+              let correlationId = CorrelationId(Guid.NewGuid())
+
+              lifecyclePayloads random
+              |> List.map (fun payload -> (sid, correlationId), payload) ]
 
     let start = DateTimeOffset.UtcNow
 

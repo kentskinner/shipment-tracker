@@ -23,6 +23,7 @@ let ``unknown event type yields an Error naming the bad type`` () =
     let json =
         buildEnvelope (ShipmentId "SHP-001") (ShipmentPickedUp { PickedUpBy = "Fred" })
         |> serializeEnvelope
+
     let sabotaged = json.Replace("ShipmentPickedUp", "TeleportInitiated")
 
     match decodeEnvelope sabotaged with
@@ -34,6 +35,7 @@ let ``unsupported schema version yields an Error naming the version`` () =
     let json =
         buildEnvelope (ShipmentId "SHP-001") (ShipmentPickedUp { PickedUpBy = "Fred" })
         |> serializeEnvelope
+
     let sabotaged = json.Replace("\"schemaVersion\":1", "\"schemaVersion\":99")
 
     match decodeEnvelope sabotaged with

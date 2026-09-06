@@ -21,11 +21,13 @@ let private tryFind id =
 
 let private describe (state: ShipmentState) =
     let (ShipmentId sid) = state.ShipmentId
+
     let extras =
         [ state.ContainerId |> Option.map (fun (ContainerId c) -> $"container {c}")
           state.ClearedBy |> Option.map (fun (CustomsOffice o) -> $"cleared by {o}")
           state.SignatureName |> Option.map (fun s -> $"signed {s}") ]
         |> List.choose id
+
     match extras with
     | [] -> $"{sid}: {state.Status}"
     | xs -> $"""{sid}: {state.Status} ({String.Join(", ", xs)})"""
@@ -33,20 +35,29 @@ let private describe (state: ShipmentState) =
 /// Handle one message. A poison message must never halt the partition,
 /// but it also must not vanish silently: undecodable messages and
 /// rejected transitions go to the dead-letter topic with full context.
-/// (Note: under at-least-once, a redelivered duplicate can look like a
-/// transition rejection - e.g. AlreadyCreated. Consumer-side idempotency
-/// will filter benign duplicates before they reach this point.)
-let private handle (deadLetter: ConsumeResult<string, string> -> string -> unit) (result: ConsumeResult<string, string>) =
+let private handle
+    (deadLetter: ConsumeResult<string, string> -> string -> unit)
+    (result: ConsumeResult<string, string>)
+    =
     match Serialization.decodeEnvelope result.Message.Value with
-    | Error err ->
-        deadLetter result $"undecodable message: {err}"
+    | Error err -> deadLetter result $"undecodable message: {err}"
     | Ok envelope ->
-        match Shipment.apply (tryFind envelope.ShipmentId) envelope with
-        | Error rejection ->
-            deadLetter result $"transition rejected: %A{rejection}"
-        | Ok newState ->
-            store[envelope.ShipmentId] <- newState
-            printfn $"[ok]   {describe newState}"
+        match tryFind envelope.ShipmentId with
+        | Some state when state.LastEventId = envelope.EventId ->
+            // At-least-once redelivery: this is the event we just applied
+            // (redelivery resumes from the last committed offset, so the
+            // first duplicate is always the most recently processed event).
+            // Skip it instead of letting apply reject it into the DLQ.
+            // With the in-memory store this covers redelivery within a
+            // process lifetime; the durable store extends it across
+            // crashes, since that is what remembers LastEventId.
+            printfn $"[dup]  {result.TopicPartitionOffset} already applied, skipping"
+        | current ->
+            match Shipment.apply current envelope with
+            | Error rejection -> deadLetter result $"transition rejected: %A{rejection}"
+            | Ok newState ->
+                store[envelope.ShipmentId] <- newState
+                printfn $"[ok]   {describe newState}"
 
 [<EntryPoint>]
 let main argv =
@@ -74,6 +85,7 @@ let main argv =
         )
 
     use cts = new CancellationTokenSource()
+
     Console.CancelKeyPress.Add(fun e ->
         e.Cancel <- true
         cts.Cancel())
@@ -96,11 +108,13 @@ let main argv =
     printfn $"projector consuming '{topic}' as group '{config.GroupId}' - Ctrl+C to stop"
 
     let mutable idleSeconds = 0
+
     try
         while not cts.IsCancellationRequested do
             match consumer.Consume(TimeSpan.FromSeconds 1.0) with
             | null ->
                 idleSeconds <- idleSeconds + 1
+
                 match idleExitSeconds with
                 | Some limit when idleSeconds >= limit -> cts.Cancel()
                 | _ -> ()

@@ -67,8 +67,10 @@ to detect than a duplicate is to absorb.
 Producer-side idempotence (`enable.idempotence`) is also on. It
 deduplicates broker-level retries, which is a separate problem from
 duplicate consumer processing; that one is handled by comparing an
-envelope's `eventId` against the projection's `lastEventId` (in
-progress, see roadmap).
+envelope's `eventId` against the projection's `lastEventId` and
+skipping matches as benign redeliveries. With the in-memory store this
+covers redelivery within a process lifetime; the durable store will
+extend it across crashes, since that is what remembers `lastEventId`.
 
 ### An authored wire contract (Thoth.Json)
 
@@ -199,9 +201,9 @@ tradeoff sections above say why.
 
 ## Roadmap
 
-- [ ] Consumer-side idempotency: skip events whose `eventId` matches the
-      projection's `lastEventId`, so redelivered duplicates become
-      no-ops instead of dead-letter noise
+- [x] Consumer-side idempotency: events whose `eventId` matches the
+      projection's `lastEventId` are skipped as redelivered duplicates
+      (full effect arrives with the durable store below)
 - [ ] Structured logging (Serilog) with correlation IDs end to end
 - [ ] Integration tests against real Kafka (Testcontainers)
 - [ ] DynamoDB projection store (local first, then AWS)
