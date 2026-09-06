@@ -13,6 +13,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ShipmentTracker.Domain.Test
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ShipmentTracker.Producer", "src\ShipmentTracker.Producer\ShipmentTracker.Producer.fsproj", "{07D35405-9CCB-48B9-A828-D6A588427D04}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ShipmentTracker.Projector", "src\ShipmentTracker.Projector\ShipmentTracker.Projector.fsproj", "{9FFC1CB2-0BBE-48E7-A597-510B84B6A89B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,10 +36,15 @@ Global
 		{07D35405-9CCB-48B9-A828-D6A588427D04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07D35405-9CCB-48B9-A828-D6A588427D04}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07D35405-9CCB-48B9-A828-D6A588427D04}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FFC1CB2-0BBE-48E7-A597-510B84B6A89B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FFC1CB2-0BBE-48E7-A597-510B84B6A89B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FFC1CB2-0BBE-48E7-A597-510B84B6A89B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FFC1CB2-0BBE-48E7-A597-510B84B6A89B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E9373A47-9797-4402-9DC9-13869C859CD4} = {BA41571D-37A5-453E-80E4-568DE99DF4C3}
 		{C5C47B42-B7AD-49A6-98F7-C26BD790AA69} = {0558B527-6E78-46E5-A92D-19F9011FD12B}
 		{07D35405-9CCB-48B9-A828-D6A588427D04} = {BA41571D-37A5-453E-80E4-568DE99DF4C3}
+		{9FFC1CB2-0BBE-48E7-A597-510B84B6A89B} = {BA41571D-37A5-453E-80E4-568DE99DF4C3}
 	EndGlobalSection
 EndGlobal
