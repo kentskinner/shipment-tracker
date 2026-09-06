@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="DeadLetter.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
@@ -18,3 +19,4 @@
   </ItemGroup>
 
 </Project>
+
