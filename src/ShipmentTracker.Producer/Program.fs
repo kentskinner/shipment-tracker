@@ -44,29 +44,42 @@ let private publish (producer: IProducer<string, string>) (envelope: Envelope) =
         printfn $"{key} -> partition {result.Partition.Value}, offset {result.Offset.Value}"
     }
 
+let private publishAll (envelopes: Envelope list) =
+    let config =
+        ProducerConfig(
+            BootstrapServers = "localhost:9092",
+            // Acks.All: the write is confirmed only once fully replicated.
+            Acks = Acks.All,
+            // Broker-side dedup of client retries: a lost ack cannot
+            // produce a duplicate write. (Distinct from consumer-side
+            // idempotency, which the projector handles.)
+            EnableIdempotence = true
+        )
+
+    use producer = ProducerBuilder<string, string>(config).Build()
+
+    // Awaiting each send before the next preserves publish order even
+    // beyond what idempotence already guarantees about retries.
+    for envelope in envelopes do
+        (publish producer envelope).GetAwaiter().GetResult()
+
+    printfn $"published {List.length envelopes} events"
+
 [<EntryPoint>]
 let main argv =
     match argv with
     | [| "demo"; shipmentId |] ->
-        let config =
-            ProducerConfig(
-                BootstrapServers = "localhost:9092",
-                // Acks.All: the write is confirmed only once fully replicated.
-                Acks = Acks.All,
-                // Broker-side dedup of client retries: a lost ack cannot
-                // produce a duplicate write. (Distinct from consumer-side
-                // idempotency, which the projector handles.)
-                EnableIdempotence = true
-            )
-
-        use producer = ProducerBuilder<string, string>(config).Build()
-
-        // Awaiting each send before the next preserves publish order even
-        // beyond what idempotence already guarantees about retries.
-        for envelope in lifecycle (ShipmentId shipmentId) do
-            (publish producer envelope).GetAwaiter().GetResult()
-
+        publishAll (lifecycle (ShipmentId shipmentId))
+        0
+    | [| "simulate"; count |] ->
+        publishAll (Scenario.generate (Random()) (int count))
+        0
+    | [| "simulate"; count; seed |] ->
+        // Seeded runs reproduce the exact same scenario - same shipments,
+        // same details, same interleaving.
+        publishAll (Scenario.generate (Random(int seed)) (int count))
         0
     | _ ->
         eprintfn "usage: dotnet run -- demo <shipmentId>"
+        eprintfn "       dotnet run -- simulate <shipmentCount> [seed]"
         1
