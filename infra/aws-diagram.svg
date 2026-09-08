@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" font-family="Segoe UI, Arial, sans-serif">
+  <rect x="0" y="0" width="960" height="720" fill="#ffffff"/>
+
+  <!-- Region -->
+  <rect x="20" y="20" width="700" height="640" fill="#fafafa" stroke="#999" stroke-width="1.5" rx="8"/>
+  <text x="36" y="46" font-size="15" fill="#555" font-weight="bold">AWS region us-west-2</text>
+
+  <!-- VPC -->
+  <rect x="40" y="60" width="660" height="520" fill="#f0f4f8" stroke="#4a6fa5" stroke-width="2" rx="8"/>
+  <text x="56" y="86" font-size="15" fill="#2c4a73" font-weight="bold">VPC "shipment-tracker"  10.0.0.0/16</text>
+  <text x="56" y="104" font-size="12" fill="#557">DNS support + hostnames on (MSK bootstrap names resolve here)</text>
+
+  <!-- AZ a -->
+  <rect x="60" y="120" width="300" height="290" fill="none" stroke="#8aa" stroke-width="1.2" stroke-dasharray="6 3" rx="6"/>
+  <text x="76" y="142" font-size="13" fill="#688" font-weight="bold">Availability Zone us-west-2a</text>
+
+  <!-- AZ b -->
+  <rect x="380" y="120" width="300" height="290" fill="none" stroke="#8aa" stroke-width="1.2" stroke-dasharray="6 3" rx="6"/>
+  <text x="396" y="142" font-size="13" fill="#688" font-weight="bold">Availability Zone us-west-2b</text>
+
+  <!-- Subnet a -->
+  <rect x="76" y="156" width="268" height="238" fill="#e4efe4" stroke="#4a7a4a" stroke-width="1.8" rx="6"/>
+  <text x="92" y="178" font-size="13.5" fill="#2f5a2f" font-weight="bold">private subnet 10.0.10.0/24</text>
+  <text x="92" y="194" font-size="11.5" fill="#4a6a4a">no public IPs on launch</text>
+
+  <!-- Subnet b -->
+  <rect x="396" y="156" width="268" height="238" fill="#e4efe4" stroke="#4a7a4a" stroke-width="1.8" rx="6"/>
+  <text x="412" y="178" font-size="13.5" fill="#2f5a2f" font-weight="bold">private subnet 10.0.11.0/24</text>
+  <text x="412" y="194" font-size="11.5" fill="#4a6a4a">no public IPs on launch</text>
+
+  <!-- MSK broker a (planned) -->
+  <rect x="92" y="210" width="236" height="60" fill="#fff" stroke="#b07030" stroke-width="1.5" stroke-dasharray="5 4" rx="6"/>
+  <text x="104" y="233" font-size="12.5" fill="#8a5620" font-weight="bold">MSK broker 1  (planned, milestone C)</text>
+  <text x="104" y="250" font-size="11.5" fill="#8a5620">badge: sg-kafka &#183; TLS listener :9094</text>
+
+  <!-- MSK broker b (planned) -->
+  <rect x="412" y="210" width="236" height="60" fill="#fff" stroke="#b07030" stroke-width="1.5" stroke-dasharray="5 4" rx="6"/>
+  <text x="424" y="233" font-size="12.5" fill="#8a5620" font-weight="bold">MSK broker 2  (planned, milestone C)</text>
+  <text x="424" y="250" font-size="11.5" fill="#8a5620">badge: sg-kafka &#183; TLS listener :9094</text>
+
+  <!-- replication arrow between brokers -->
+  <line x1="328" y1="240" x2="412" y2="240" stroke="#b07030" stroke-width="1.3" stroke-dasharray="4 3"/>
+  <text x="333" y="232" font-size="10.5" fill="#8a5620">replication</text>
+  <text x="337" y="256" font-size="10.5" fill="#8a5620">(Acks=All)</text>
+
+  <!-- Projector EC2 (planned) -->
+  <rect x="92" y="300" width="236" height="72" fill="#fff" stroke="#555" stroke-width="1.5" stroke-dasharray="5 4" rx="6"/>
+  <text x="104" y="323" font-size="12.5" fill="#444" font-weight="bold">EC2: producer / projector</text>
+  <text x="104" y="340" font-size="11.5" fill="#666">(planned, milestone D) &#183; badge: sg-app</text>
+  <text x="104" y="356" font-size="11.5" fill="#666">shell access via SSM, outbound only</text>
+
+  <!-- arrow projector -> broker1 -->
+  <line x1="210" y1="300" x2="210" y2="274" stroke="#333" stroke-width="1.6"/>
+  <polygon points="210,270 205,280 215,280" fill="#333"/>
+  <text x="220" y="290" font-size="11" fill="#333">TCP 9094 &#8212; allowed because source wears sg-app</text>
+
+  <!-- Route table -->
+  <rect x="60" y="430" width="620" height="66" fill="#fdf6e3" stroke="#b0a060" stroke-width="1.6" rx="6"/>
+  <text x="76" y="452" font-size="13" fill="#7a6a20" font-weight="bold">route table "private"  (both subnets associated)</text>
+  <text x="76" y="470" font-size="12" fill="#7a6a20">10.0.0.0/16 &#8594; local &#160;&#160;&#183;&#160;&#160; pl-&#8230; (DynamoDB prefixes) &#8594; vpce &#160;&#160;&#183;&#160;&#160; no 0.0.0.0/0 route at all</text>
+  <text x="76" y="487" font-size="11.5" fill="#9a8a40">the missing default route is the privacy mechanism</text>
+
+  <!-- association lines subnets->route table -->
+  <line x1="210" y1="394" x2="210" y2="430" stroke="#b0a060" stroke-width="1.3" stroke-dasharray="3 3"/>
+  <line x1="530" y1="394" x2="530" y2="430" stroke="#b0a060" stroke-width="1.3" stroke-dasharray="3 3"/>
+
+  <!-- Endpoint -->
+  <rect x="60" y="516" width="280" height="46" fill="#e8e4f0" stroke="#6a5a9a" stroke-width="1.6" rx="6"/>
+  <text x="76" y="536" font-size="12.5" fill="#4a3a7a" font-weight="bold">DynamoDB gateway endpoint (free)</text>
+  <text x="76" y="552" font-size="11.5" fill="#5a4a8a">installs the pl-&#8230; route above</text>
+  <line x1="200" y1="516" x2="200" y2="496" stroke="#6a5a9a" stroke-width="1.3"/>
+
+  <!-- DynamoDB outside VPC, inside region -->
+  <rect x="480" y="596" width="220" height="52" fill="#e8e4f0" stroke="#6a5a9a" stroke-width="1.6" rx="6"/>
+  <text x="496" y="617" font-size="12.5" fill="#4a3a7a" font-weight="bold">DynamoDB (regional service)</text>
+  <text x="496" y="633" font-size="11.5" fill="#5a4a8a">projection table &#8212; planned, milestone B</text>
+
+  <!-- endpoint -> dynamodb arrow -->
+  <path d="M 340 540 C 430 540 430 620 474 620" fill="none" stroke="#6a5a9a" stroke-width="1.6"/>
+  <polygon points="478,620 468,615 468,625" fill="#6a5a9a"/>
+  <text x="352" y="580" font-size="11" fill="#5a4a8a">AWS internal fabric &#8212; never the internet</text>
+
+  <!-- Internet -->
+  <ellipse cx="840" cy="120" rx="90" ry="46" fill="#f8f0f0" stroke="#a05050" stroke-width="1.6"/>
+  <text x="806" y="116" font-size="13.5" fill="#803030" font-weight="bold">internet</text>
+  <text x="782" y="136" font-size="11" fill="#a05050">cannot reach anything here</text>
+
+  <!-- no-path marker: line from internet toward VPC with X -->
+  <line x1="752" y1="140" x2="704" y2="180" stroke="#a05050" stroke-width="1.6" stroke-dasharray="6 4"/>
+  <line x1="716" y1="152" x2="740" y2="176" stroke="#a05050" stroke-width="2.4"/>
+  <line x1="740" y1="152" x2="716" y2="176" stroke="#a05050" stroke-width="2.4"/>
+  <text x="726" y="205" font-size="11" fill="#a05050">no IGW &#183; no NAT</text>
+  <text x="726" y="220" font-size="11" fill="#a05050">no public subnet</text>
+
+  <!-- SSM note -->
+  <rect x="740" y="256" width="200" height="88" fill="#f4f4f4" stroke="#888" stroke-width="1.2" rx="6"/>
+  <text x="754" y="278" font-size="12" fill="#444" font-weight="bold">operator access (milestone D)</text>
+  <text x="754" y="296" font-size="11" fill="#555">SSM Session Manager:</text>
+  <text x="754" y="311" font-size="11" fill="#555">instance dials out, you ride the</text>
+  <text x="754" y="326" font-size="11" fill="#555">channel back in &#8212; no bastion,</text>
+  <text x="754" y="341" font-size="11" fill="#555">no port 22, no public tier</text>
+
+  <!-- Legend -->
+  <rect x="740" y="380" width="200" height="150" fill="#fff" stroke="#bbb" stroke-width="1" rx="6"/>
+  <text x="754" y="402" font-size="12.5" fill="#333" font-weight="bold">legend</text>
+  <line x1="754" y1="418" x2="794" y2="418" stroke="#4a7a4a" stroke-width="2"/>
+  <text x="802" y="422" font-size="11.5" fill="#444">applied (milestone A, $0)</text>
+  <line x1="754" y1="440" x2="794" y2="440" stroke="#b07030" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <text x="802" y="444" font-size="11.5" fill="#444">planned (B&#8211;D)</text>
+  <rect x="754" y="456" width="40" height="14" fill="none" stroke="#8aa" stroke-dasharray="6 3"/>
+  <text x="802" y="467" font-size="11.5" fill="#444">availability zone</text>
+  <text x="754" y="492" font-size="11.5" fill="#444">badge = security group</text>
+  <text x="754" y="508" font-size="11.5" fill="#444">sg-kafka ingress: 9094</text>
+  <text x="754" y="522" font-size="11.5" fill="#444">only from sg-app</text>
+</svg>

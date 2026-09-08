@@ -168,15 +168,15 @@ contract.
 - Backpressure: Kafka consumers pull, so a slow projector polls less and
   lag grows. The metric to watch is consumer lag.
 
-## AWS deployment (designed; Terraform in progress)
+## AWS deployment (in progress; network layer applied)
 
-```
-VPC 10.0.0.0/16
-├── private subnets: MSK brokers  (SG: ingress 9092 only from sg-app)
-├── private subnet:  projector    (sg-app; egress via NAT gateway)
-│      projection + idempotency in DynamoDB (conditional writes)
-└── public subnet:   nothing yet - nothing here needs to face the internet
-```
+![AWS deployment: private-only VPC across two AZs, MSK and EC2 planned, DynamoDB via gateway endpoint, no internet path](infra/aws-diagram.svg)
+
+Solid outlines exist (created by the Terraform in `infra/terraform`, all
+free-tier); dashed outlines are the planned milestones. There is no NAT
+gateway: the only egress from the private subnets is the free DynamoDB
+gateway endpoint, and operator access will use SSM Session Manager
+rather than a bastion, so no public subnet is needed at all.
 
 MSK because the broker is the system of record; DynamoDB because a
 single conditional write can persist the projection and enforce the
@@ -208,3 +208,4 @@ tradeoff sections above say why.
 - [ ] Integration tests against real Kafka (Testcontainers)
 - [ ] DynamoDB projection store (local first, then AWS)
 - [ ] Terraform for the MSK/DynamoDB/CloudWatch deployment above
+      (network layer applied; MSK and compute to come)
