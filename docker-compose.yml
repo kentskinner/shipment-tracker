@@ -34,5 +34,22 @@ services:
     volumes:
       - kafka-data:/var/lib/kafka/data # survive `docker compose down`
 
+  dynamodb:
+    image: amazon/dynamodb-local:2.5.2
+    container_name: shipment-dynamodb
+    # root so the process can write to the named volume below; fine for
+    # a local dev store, not a pattern for anything exposed
+    user: root
+    ports:
+      - "8000:8000"
+    working_dir: /home/dynamodblocal
+    # -sharedDb: one database file regardless of credentials/region.
+    # Without it, every distinct access key sees its own empty database,
+    # which is a classic source of "where did my table go" confusion.
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    volumes:
+      - dynamodb-data:/home/dynamodblocal/data
+
 volumes:
   kafka-data:
+  dynamodb-data:
