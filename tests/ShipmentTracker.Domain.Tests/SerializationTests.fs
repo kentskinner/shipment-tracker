@@ -41,3 +41,21 @@ let ``unsupported schema version yields an Error naming the version`` () =
     match decodeEnvelope sabotaged with
     | Error msg -> Assert.Contains("99", msg)
     | Ok e -> failwith $"expected Error, got {e}"
+
+[<Fact>]
+let ``sparse projection state round-trips unchanged`` () =
+    let state = buildState (ShipmentId "SHP-001")
+    Assert.Equal(Ok state, state |> encodeState |> decodeState)
+
+[<Fact>]
+let ``fully populated projection state round-trips unchanged`` () =
+    let state =
+        { buildState (ShipmentId "SHP-001") with
+            Status = Delivered
+            PickedUpBy = Some "Fred"
+            ContainerId = Some(ContainerId "CONT-001")
+            ClearedBy = Some(CustomsOffice "NL-RTM")
+            SignatureName = Some "Ada"
+            DeliveredTo = Some "Singapore warehouse" }
+
+    Assert.Equal(Ok state, state |> encodeState |> decodeState)

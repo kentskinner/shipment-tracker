@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <Compile Include="DeadLetter.fs" />
+    <Compile Include="Store.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
@@ -15,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.103.6" />
     <PackageReference Include="Confluent.Kafka" Version="2.15.0" />
   </ItemGroup>
 

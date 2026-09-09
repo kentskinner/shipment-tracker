@@ -7,8 +7,8 @@
 
   <ItemGroup>
     <Compile Include="Events.fs" />
-    <Compile Include="Serialization.fs" />
     <Compile Include="State.fs" />
+    <Compile Include="Serialization.fs" />
   </ItemGroup>
 
   <ItemGroup>

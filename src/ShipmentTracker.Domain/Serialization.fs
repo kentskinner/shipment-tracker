@@ -102,6 +102,18 @@ module Serialization =
             else
                 Decode.fail $"unsupported schema version: {v}")
 
+    // --- projection state codec (used by the projector's store) ---
+    // Auto-generated, unlike the hand-written envelope codec above, and
+    // the difference is deliberate: the envelope is a public contract
+    // whose evolution policy matters, while this JSON is internal
+    // persistence read only by the projector. If a library upgrade ever
+    // changes the generated format, the projection rebuilds by replay.
+
+    let encodeState (s: ShipmentState) : string = Encode.Auto.toString (0, s)
+
+    let decodeState (json: string) : Result<ShipmentState, string> =
+        Decode.Auto.fromString<ShipmentState> json
+
     let serializeEnvelope (e: Envelope) : string = encodeEnvelope e |> Encode.toString 0
 
     let decodeEnvelope (json: string) : Result<Envelope, string> = Decode.fromString envelopeDecoder json
